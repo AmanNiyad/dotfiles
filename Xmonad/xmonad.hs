@@ -1,16 +1,69 @@
 --IMPORTS--
 
 import XMonad
-import Data.Monoid
 import System.Exit
-import XMonad.Hooks.ManageDocks
+import Prelude hiding (log)
 import qualified XMonad.StackSet as W
-import qualified Data.Map        as M
-import XMonad.Util.SpawnOnce
+import qualified Data.Map as M
+
+import Data.Maybe (fromJust)
+import Data.Semigroup
+import Data.Bits (testBit)
+
+import Control.Monad (unless, when)
+import Foreign.C (CInt)
+import Data.Foldable (find)
+
+import Graphics.X11.Xinerama (getScreenInfo)
+import Graphics.X11.ExtraTypes.XF86
+
+import XMonad.Hooks.DynamicLog
+import XMonad.Hooks.InsertPosition (insertPosition, Focus(Newer), Position (Master, End))
+import XMonad.Hooks.ManageDocks
+import XMonad.Hooks.EwmhDesktops
+import XMonad.Hooks.WindowSwallowing
+import XMonad.Hooks.StatusBar
+import XMonad.Hooks.ManageHelpers (isDialog, doCenterFloat, doSink)
+import XMonad.Hooks.RefocusLast (isFloat)
+
+import XMonad.Layout.Spacing (Spacing, spacingRaw, Border (Border))
+import XMonad.Layout.NoBorders (smartBorders)
+import XMonad.Layout.Renamed
+import XMonad.Layout.Decoration (ModifiedLayout)
+import XMonad.Layout.DraggingVisualizer (draggingVisualizer)
+import XMonad.Layout.MultiToggle.Instances (StdTransformers (NBFULL))
+import XMonad.Layout.MultiToggle (EOT (EOT), Toggle (Toggle), mkToggle, (??))
+import XMonad.Layout.MouseResizableTile
+import XMonad.Layout.Tabbed
+import XMonad.Layout.Spiral
+import XMonad.Layout.Grid
+import XMonad.Layout.Spacing
+
+import XMonad.Layout.IndependentScreens
+-- import XMonad.Layout.HintedGrid
+import XMonad.Layout.PerWorkspace
+
 import XMonad.Util.Run
+import XMonad.Util.NamedScratchpad
+-- import XMonad.Util.NamedActions
+import XMonad.Util.SpawnOnce
+import XMonad.Util.ClickableWorkspaces
+import XMonad.Util.Loggers (logLayoutOnScreen, logTitleOnScreen, shortenL, wrapL, xmobarColorL)
+import XMonad.Util.EZConfig (additionalKeysP)
+import qualified XMonad.Util.ExtensibleState as XS
+
+import XMonad.Actions.CycleWS
+import XMonad.Actions.TiledWindowDragging
+import qualified XMonad.Actions.FlexibleResize as Flex
+import XMonad.Actions.UpdatePointer (updatePointer)
+import XMonad.Actions.OnScreen (onlyOnScreen)
+import XMonad.Actions.Warp 
+import Data.List
+import qualified Data.List as L
 
 myTerminal      = "alacritty"
 
+myColor = mySolarized :: ColorSchemes
 -- Whether focus follows the mouse pointer.
 myFocusFollowsMouse :: Bool
 myFocusFollowsMouse = True
@@ -25,14 +78,63 @@ myBorderWidth   = 1
 --ModKey
 myModMask       = mod4Mask
 
---Workspaces
-myWorkspaces    = ["1","2","3","4","5","6","7","8","9"]
-
 -- Border colors for unfocused and focused windows, respectively.
+
+actionPrefix, actionButton, actionSuffix :: [Char]
+actionPrefix = "<action=`xdotool key super+"
+actionButton = "` button="
+actionSuffix = "</action>"
+
+addActions :: [(String, Int)] -> String -> String
+addActions [] ws = ws
+addActions (x:xs) ws = addActions xs (actionPrefix ++ k ++ actionButton ++ show b ++ ">" ++ ws ++ actionSuffix)
+    where k = fst x
+          b = snd x
+
+
+
 myNormalBorderColor  = "#dddddd" 
 myFocusedBorderColor = "#9531e0"
 
 ------------------------------------------------------------------------
+myWorkspaces = ["1", "2", "3", "4", "5", "6", "7", "8", "9"]
+myWorkspaceIndices = M.fromList $ zip myWorkspaces [1 ..]
+clickable ws = "<action=xdotool key super+" ++ show i ++ ">" ++ ws ++ "</action>"
+  where
+    i = fromJust $ M.lookup ws myWorkspaceIndices
+------------------------------------------------------------------------
+--colors
+data ColorSchemes = ColorSchemes{black ,white ,gray ,yellow ,orange ,red ,purple ,blue ,cyan ,green :: String}
+
+myGruvbox :: ColorSchemes
+myGruvbox = ColorSchemes {
+                          black   = "#282828",
+                          white   = "#ebdbb2",
+                          gray    = "#928374",
+                          yellow  = "#fabd2f",
+                          orange  = "#fe8019",
+                          red     = "#fb4934",
+                          purple  = "#d3869b",
+                          blue    = "#83a598",
+                          cyan    = "#8ec07c",
+                          green   = "#b8bb26"
+                         }
+
+mySolarized :: ColorSchemes
+mySolarized = ColorSchemes {
+                            black   = "#002b36",
+                            white   = "#eee8d5",
+                            gray    = "#073642",
+                            yellow  = "#b58900",
+                            orange  = "#cb4b16",
+                            red     = "#d30102",
+                            purple  = "#d33682",
+                            blue    = "#268bd2",
+                            cyan    = "#2aa198",
+                            green   = "#859900"
+                           }
+--
+-------------------------------------------------------------------------
 -- Key bindings. Add, modify or remove key bindings here.
 --
 myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
@@ -42,6 +144,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
 
     -- launch dmenu
     , ((modm,               xK_p     ), spawn "dmenu_run")
+    , ((modm,               xK_b     ), spawn "firefox")
 
     -- launch gmrun
     , ((modm .|. shiftMask, xK_p     ), spawn "gmrun")
@@ -69,7 +172,10 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
 
     -- Move focus to the master window
     , ((modm,               xK_m     ), windows W.focusMaster  )
-
+  , ((0          ,0x1008ff11), spawn "pactl set-sink-volume 0 -2%")
+  , ((0          ,0x1008ff13), spawn "pactl set-sink-volume 0 +2%")
+   , ((0, xF86XK_MonBrightnessUp), spawn "lux -a 10%")
+  , ((0, xF86XK_MonBrightnessDown), spawn "lux -s 10%")
     -- Swap the focused window and the master window
     , ((modm,               xK_Return), windows W.swapMaster)
 
@@ -151,23 +257,51 @@ myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList $
 ------------------------------------------------------------------------
 -- Layouts:
 
-myLayout = avoidStruts (tiled ||| Mirror tiled ||| Full)
+-- You can specify and transform your layouts by modifying these values.
+-- If you change layout bindings be sure to use 'mod-shift-space' after
+-- restarting (with 'mod-q') to reset your layout state to the new
+-- defaults, as xmonad preserves your old layout settings by default.
+--
+-- The available layouts.  Note that each layout is separated by |||,
+-- which denotes layout choice.
+--
+
+-- mySpacing :: Integer -> Integer -> l a -> ModifiedLayout Spacing l a
+-- mySpacing i j = spacingRaw False (Border i i i i) True (Border j j j j) True
+
+
+
+myLayout = spacing 5 $ avoidStruts(layoutTall ||| layoutGrid ||| layoutSpiral)
   where
-     -- default tiling algorithm partitions the screen into two panes
-     tiled   = Tall nmaster delta ratio
-
-     -- The default number of windows in the master pane
-     nmaster = 1
-
-     -- Default proportion of screen occupied by master pane
-     ratio   = 1/2
-
-     -- Percent of screen to increment by when resizing panes
-     delta   = 3/100
+    layoutTall = Tall 1 (3/100) (1/2) 
+    layoutSpiral = spiral(6/7) 
+    layoutGrid = Grid
+    -- myTabTheme = def
+    --   { fontName            = "xft:Roboto:size=12:bold"
+    --   , activeColor         = grey1
+    --   , inactiveColor       = grey1
+    --   , activeBorderColor   = grey1
+    --   , inactiveBorderColor = grey1
+    --   , activeTextColor     = cyan
+    --   , inactiveTextColor   = grey3
+    --   , decoHeight          = 15
+    --   }
 
 ------------------------------------------------------------------------
 -- Window rules:
 
+-- Execute arbitrary actions and WindowSet manipulations when managing
+-- a new window. You can use this to, for example, always float a
+-- particular program, or have a client always appear on a particular
+-- workspace.
+--
+-- To find the property name associated with a program, use
+-- > xprop | grep WM_CLASS
+-- and click on the client you're interested in.
+--
+-- To match on the WM_NAME, you can use 'title' in the same way that
+-- 'className' and 'resource' are used below.
+--
 myManageHook = composeAll
     [ className =? "Darktable"        --> doFloat
     , className =? "Gimp"           --> doFloat
@@ -177,9 +311,31 @@ myManageHook = composeAll
 ------------------------------------------------------------------------
 -- Event handling
 
+-- * EwmhDesktops users should change this to ewmhDesktopsEventHook
+--
+-- Defines a custom handler function for X Events. The function should
+-- return (All True) if the default handler is to be run afterwards. To
+-- combine event hooks use mappend or mconcat from Data.Monoid.
+--
 myEventHook = mempty
 
 ------------------------------------------------------------------------
+newtype MyUpdatePointerActive = MyUpdatePointerActive Bool
+instance ExtensionClass MyUpdatePointerActive where
+  initialValue = MyUpdatePointerActive True
+
+myUpdatePointer :: (Rational, Rational) -> (Rational, Rational) -> X ()
+myUpdatePointer refPos ratio =
+  whenX isActive $ do
+    dpy <- asks display
+    root <- asks theRoot
+    (_,_,_,_,_,_,_,m) <- io $ queryPointer dpy root
+    unless (testBit m 9 || testBit m 8 || testBit m 10) $ -- unless the mouse is clicking
+      updatePointer refPos ratio
+
+  where
+    isActive = (\(MyUpdatePointerActive b) -> b) <$> XS.get
+------------------------------------------------------
 -- Status bars and logging
 
 -- Perform an arbitrary action on each internal state change or X event.
@@ -200,14 +356,157 @@ myStartupHook = do
     spawnOnce "picom &"
 
 ------------------------------------------------------------------------
+--
+--dynamicloghook
+windowCount :: X (Maybe String)
+windowCount = gets $ Just . show . length . W.integrate' . W.stack . W.workspace . W.current . windowset
+
+myXmobarPP h =
+  xmobarPP
+    { ppCurrent         = xmobarColor (green myColor) "" . wrap "[" "]",
+      ppVisible         = xmobarColor (white myColor) "" . wrap "" "" . clickable,
+      ppHidden          = xmobarColor (yellow myColor) "" . wrap "" "" . clickable,
+      ppHiddenNoWindows = xmobarColor (white myColor) "" . clickable,
+      ppSep             = " | ",
+      ppTitle           = xmobarColor (white myColor) "" . shorten 60,
+      ppLayout          = xmobarColor  (white myColor) "",
+      -- ppOutput          = \x -> hPutStrLn xmproc0 x >> hPutStrLn xmproc1 x,
+      --ppExtras          = [windowCount],
+      ppOrder           = \(ws : l : t : ex) -> [ws, l, t]
+    }
+
+
+
+
+
+
+
+
+
+-- myWorkspaceIndices :: M.Map [Char] Integer
+-- myWorkspaceIndices = M.fromList $ zip myWorkspaces [1..]
+
+-- clickable :: [Char] -> [Char] -> [Char]
+-- clickable icon ws = addActions [ (show i, 1), ("q", 2), ("Left", 4), ("Right", 5) ] icon
+--                     where i = fromJust $ M.lookup ws myWorkspaceIndices
+
+-- myStatusBarSpawner :: Applicative f => ScreenId -> f StatusBarConfig
+-- myStatusBarSpawner (S s) = do
+--                     pure $ statusBarPropTo ("_XMONAD_LOG_" ++ show s)
+--                           ("xmobar -x " ++ show s ++ " ~/.config/xmonad/xmobar/xmobar" ++ show s ++ ".hs")
+--                           (pure $ myXmobarPP (S s))
+
+
+-- myXmobarPP :: ScreenId -> PP
+-- myXmobarPP s  = filterOutWsPP [scratchpadWorkspaceTag] . marshallPP s $ def
+--   { ppSep = ""
+--   , ppWsSep = ""
+--   , ppCurrent = xmobarColor cyan "" . clickable wsIconFull
+--   , ppVisible = xmobarColor grey4 "" . clickable wsIconFull
+--   , ppVisibleNoWindows = Just (xmobarColor grey4 "" . clickable wsIconFull)
+--   , ppHidden = xmobarColor grey2 "" . clickable wsIconHidden
+--   , ppHiddenNoWindows = xmobarColor grey2 "" . clickable wsIconEmpty
+--   , ppUrgent = xmobarColor orange "" . clickable wsIconFull
+--   , ppOrder = \(ws : _ : _ : extras) -> ws : extras
+--   , ppExtras  = [ wrapL (actionPrefix ++ "n" ++ actionButton ++ "1>") actionSuffix
+--                 $ wrapL (actionPrefix ++ "q" ++ actionButton ++ "2>") actionSuffix
+--                 $ wrapL (actionPrefix ++ "Left" ++ actionButton ++ "4>") actionSuffix
+--                 $ wrapL (actionPrefix ++ "Right" ++ actionButton ++ "5>") actionSuffix
+--                 $ wrapL "    " "    " $ layoutColorIsActive s (logLayoutOnScreen s)
+--                 , wrapL (actionPrefix ++ "q" ++ actionButton ++ "2>") actionSuffix
+--                 $  titleColorIsActive s (shortenL 81 $ logTitleOnScreen s)
+--                 ]
+--   }
+--   where
+--     wsIconFull   = "  <fn=2>\xf111</fn>   "
+--     wsIconHidden = "  <fn=2>\xf111</fn>   "
+--     wsIconEmpty  = "  <fn=2>\xf10c</fn>   "
+--     titleColorIsActive n l = do
+--       c <- withWindowSet $ return . W.screen . W.current
+--       if n == c then xmobarColorL cyan "" l else xmobarColorL grey3 "" l
+--     layoutColorIsActive n l = do
+--       c <- withWindowSet $ return . W.screen . W.current
+--       if n == c then wrapL "<icon=/home/amnesia/.config/xmonad/xmobar/icons/" "_selected.xpm/>" l else wrapL "<icon=/home/amnesia/.config/xmonad/xmobar/icons/" ".xpm/>" l
+
+--     blue     = xmobarColor "#bd93f9" ""
+--     white    = xmobarColor "#f8f8f2" ""
+--     yellow   = xmobarColor "#f1fa8c" ""
+--     red      = xmobarColor "#ff5555" ""
+--     lowWhite = xmobarColor "#bbbbbb" ""
+grey1, grey2, grey3, grey4 :: String
+grey1  = "#2B2E37"
+grey2  = "#555E70"
+grey3  = "#697180"
+grey4  = "#8691A8"
+
+------------------------------------------------------------------------
 -- Now run xmonad with all the defaults we set up.
 
 -- Run xmonad with the settings you specify. No need to modify this.
 --
 main = do
-    xmproc <- spawnPipe "xmobar /home/aman/.config/xmobar/xmobarrc"
-    xmonad $ docks defaults
+    xmproc <- spawnPipe "xmobar /home/aman/.config/xmobar/.xmobarrc" 
+    xmonad $ docks $ def{
+      -- simple stuff
+        terminal           = myTerminal,
+        focusFollowsMouse  = myFocusFollowsMouse,
+        clickJustFocuses   = myClickJustFocuses,
+        borderWidth        = myBorderWidth,
+        modMask            = myModMask,
+        workspaces         = myWorkspaces,
+        normalBorderColor  = myNormalBorderColor,
+        focusedBorderColor = myFocusedBorderColor,
 
+      -- key bindings
+        keys               = myKeys,
+        mouseBindings      = myMouseBindings,
+
+      -- hooks, layouts
+        layoutHook         = myLayout,
+        manageHook         = myManageHook,
+        handleEventHook    = myEventHook,
+        startupHook        = myStartupHook
+        , rootMask = rootMask def .|. pointerMotionMask
+        ,logHook = dynamicLogWithPP $ xmobarPP
+            { ppCurrent         = xmobarColor (green myColor) "" . wrap "[" "]",
+                                                    ppVisible         = xmobarColor (white myColor) "" . wrap "" "" . clickable,
+                                                    ppHidden          = xmobarColor (yellow myColor) "" . wrap "" "" . clickable,
+                                                    ppHiddenNoWindows = xmobarColor (white myColor) "" . clickable,
+                                                    ppSep             = " | ",
+                                                    ppTitle           = xmobarColor (white myColor) "" . shorten 60,
+                                                    ppLayout          = xmobarColor  (white myColor) "",
+                                                    ppOutput          = \x -> hPutStrLn xmproc x,
+                                                    --ppExtras          = [windowCount],
+                                                    ppOrder           = \(ws : l : t : ex) -> [ws, l, t]
+                                            }
+        }
+
+
+--        , logHook            = logHook def <+> myUpdatePointer (0.75, 0.75) (0, 0)
+--        -- , handleEventHook    = myHandleEventHook
+--        } 
+
+--        -- logHook = dynamicLogWithPP $ xmobarPP
+--        -- {
+--            -- { ppCurrent         = xmobarColor (green myColor) "" . wrap "[" "]",
+--            -- ppVisible         = xmobarColor (white myColor) "" . wrap "" "" . clickable,
+--            -- ppHidden          = xmobarColor (yellow myColor) "" . wrap "" "" . clickable,
+--            -- ppHiddenNoWindows = xmobarColor (white myColor) "" . clickable,
+--            -- ppSep             = " | ",
+--            -- ppTitle           = xmobarColor (white myColor) "" . shorten 60,
+--            -- ppLayout          = xmobarColor  (white myColor) "",
+--            -- ppOutput =hPutStrLn xmproc
+--            --ppExtras          = [windowCount],
+--            -- ppOrder = (ws : l : t : ex) -> [ws, l, t]
+--        -- }
+
+
+---- A structure containing your configuration settings, overriding
+---- fields in the default config. Any you don't override, will
+---- use the defaults defined in xmonad/XMonad/Config.hs
+----
+---- No need to modify this.
+----
 defaults = def {
       -- simple stuff
         terminal           = myTerminal,

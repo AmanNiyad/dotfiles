@@ -208,12 +208,6 @@ main = do
     xmproc <- spawnPipe "xmobar /home/aman/.config/xmobar/xmobarrc"
     xmonad $ docks defaults
 
--- A structure containing your configuration settings, overriding
--- fields in the default config. Any you don't override, will
--- use the defaults defined in xmonad/XMonad/Config.hs
---
--- No need to modify this.
---
 defaults = def {
       -- simple stuff
         terminal           = myTerminal,

@@ -40,12 +40,10 @@ import XMonad.Layout.Grid
 import XMonad.Layout.Spacing
 
 import XMonad.Layout.IndependentScreens
--- import XMonad.Layout.HintedGrid
 import XMonad.Layout.PerWorkspace
 
 import XMonad.Util.Run
 import XMonad.Util.NamedScratchpad
--- import XMonad.Util.NamedActions
 import XMonad.Util.SpawnOnce
 import XMonad.Util.ClickableWorkspaces
 import XMonad.Util.Loggers (logLayoutOnScreen, logTitleOnScreen, shortenL, wrapL, xmobarColorL)
@@ -62,9 +60,7 @@ import Data.List
 import qualified Data.List as L
 
 myTerminal      = "alacritty"
-
 myColor = mySolarized :: ColorSchemes
--- Whether focus follows the mouse pointer.
 myFocusFollowsMouse :: Bool
 myFocusFollowsMouse = True
 
@@ -72,13 +68,10 @@ myFocusFollowsMouse = True
 myClickJustFocuses :: Bool
 myClickJustFocuses = False
 
--- Width of the window border in pixels.
 myBorderWidth   = 1
 
---ModKey
 myModMask       = mod4Mask
 
--- Border colors for unfocused and focused windows, respectively.
 
 actionPrefix, actionButton, actionSuffix :: [Char]
 actionPrefix = "<action=`xdotool key super+"
@@ -96,14 +89,15 @@ addActions (x:xs) ws = addActions xs (actionPrefix ++ k ++ actionButton ++ show 
 myNormalBorderColor  = "#dddddd" 
 myFocusedBorderColor = "#9531e0"
 
-------------------------------------------------------------------------
+--Workspaces------------------------------------------------------------
+
 myWorkspaces = ["1", "2", "3", "4", "5", "6", "7", "8", "9"]
 myWorkspaceIndices = M.fromList $ zip myWorkspaces [1 ..]
 clickable ws = "<action=xdotool key super+" ++ show i ++ ">" ++ ws ++ "</action>"
   where
     i = fromJust $ M.lookup ws myWorkspaceIndices
-------------------------------------------------------------------------
---colors
+--Colors----------------------------------------------------------------
+
 data ColorSchemes = ColorSchemes{black ,white ,gray ,yellow ,orange ,red ,purple ,blue ,cyan ,green :: String}
 
 myGruvbox :: ColorSchemes

@@ -251,35 +251,11 @@ myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList $
 ------------------------------------------------------------------------
 -- Layouts:
 
--- You can specify and transform your layouts by modifying these values.
--- If you change layout bindings be sure to use 'mod-shift-space' after
--- restarting (with 'mod-q') to reset your layout state to the new
--- defaults, as xmonad preserves your old layout settings by default.
---
--- The available layouts.  Note that each layout is separated by |||,
--- which denotes layout choice.
---
-
--- mySpacing :: Integer -> Integer -> l a -> ModifiedLayout Spacing l a
--- mySpacing i j = spacingRaw False (Border i i i i) True (Border j j j j) True
-
-
-
 myLayout = spacing 5 $ avoidStruts(layoutTall ||| layoutGrid ||| layoutSpiral)
   where
     layoutTall = Tall 1 (3/100) (1/2) 
     layoutSpiral = spiral(6/7) 
     layoutGrid = Grid
-    -- myTabTheme = def
-    --   { fontName            = "xft:Roboto:size=12:bold"
-    --   , activeColor         = grey1
-    --   , inactiveColor       = grey1
-    --   , activeBorderColor   = grey1
-    --   , inactiveBorderColor = grey1
-    --   , activeTextColor     = cyan
-    --   , inactiveTextColor   = grey3
-    --   , decoHeight          = 15
-    --   }
 
 ------------------------------------------------------------------------
 -- Window rules:

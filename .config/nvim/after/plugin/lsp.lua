@@ -6,6 +6,7 @@ lsp.ensure_installed({
 	'pylsp',
 	'hls',
 	'clangd',
+    'tsserver',
 })
 
 local cmp = require('cmp')

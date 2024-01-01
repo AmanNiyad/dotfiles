@@ -7,10 +7,27 @@
       <property name="Active" type="bool" value="true"/>
       <property name="EDID" type="string" value="a65328b7afc785c761c56a74a1590a69e84434cb"/>
       <property name="Resolution" type="string" value="1920x1080"/>
-      <property name="RefreshRate" type="double" value="144.00343526875926"/>
+      <property name="RefreshRate" type="double" value="60.003536306075709"/>
       <property name="Rotation" type="int" value="0"/>
       <property name="Reflection" type="string" value="0"/>
-      <property name="Primary" type="bool" value="true"/>
+      <property name="Primary" type="bool" value="false"/>
+      <property name="Scale" type="empty">
+        <property name="X" type="double" value="1"/>
+        <property name="Y" type="double" value="1"/>
+      </property>
+      <property name="Position" type="empty">
+        <property name="X" type="int" value="2560"/>
+        <property name="Y" type="int" value="0"/>
+      </property>
+    </property>
+    <property name="DP-1" type="string" value="LG Electronics 24&quot;">
+      <property name="Active" type="bool" value="true"/>
+      <property name="EDID" type="string" value="4996bd4c35adf38c9ec0131434e89b5abe570595"/>
+      <property name="Resolution" type="string" value="2560x1440"/>
+      <property name="RefreshRate" type="double" value="59.950550105254798"/>
+      <property name="Rotation" type="int" value="0"/>
+      <property name="Reflection" type="string" value="0"/>
+      <property name="Primary" type="bool" value="false"/>
       <property name="Scale" type="empty">
         <property name="X" type="double" value="1"/>
         <property name="Y" type="double" value="1"/>
@@ -26,10 +43,27 @@
       <property name="Active" type="bool" value="true"/>
       <property name="EDID" type="string" value="a65328b7afc785c761c56a74a1590a69e84434cb"/>
       <property name="Resolution" type="string" value="1920x1080"/>
-      <property name="RefreshRate" type="double" value="144.00343526875926"/>
+      <property name="RefreshRate" type="double" value="60.003536306075709"/>
       <property name="Rotation" type="int" value="0"/>
       <property name="Reflection" type="string" value="0"/>
-      <property name="Primary" type="bool" value="true"/>
+      <property name="Primary" type="bool" value="false"/>
+      <property name="Scale" type="empty">
+        <property name="X" type="double" value="1"/>
+        <property name="Y" type="double" value="1"/>
+      </property>
+      <property name="Position" type="empty">
+        <property name="X" type="int" value="2560"/>
+        <property name="Y" type="int" value="0"/>
+      </property>
+    </property>
+    <property name="DP-1" type="string" value="LG Electronics 24&quot;">
+      <property name="Active" type="bool" value="true"/>
+      <property name="EDID" type="string" value="4996bd4c35adf38c9ec0131434e89b5abe570595"/>
+      <property name="Resolution" type="string" value="2560x1440"/>
+      <property name="RefreshRate" type="double" value="59.950550105254798"/>
+      <property name="Rotation" type="int" value="0"/>
+      <property name="Reflection" type="string" value="0"/>
+      <property name="Primary" type="bool" value="false"/>
       <property name="Scale" type="empty">
         <property name="X" type="double" value="1"/>
         <property name="Y" type="double" value="1"/>
@@ -41,4 +75,40 @@
     </property>
   </property>
   <property name="Notify" type="int" value="1"/>
+  <property name="4d0699fcac3328b5a8f71548b2252deb6d810404" type="string" value="DefaultNew">
+    <property name="eDP-1" type="string" value="Laptop">
+      <property name="Active" type="bool" value="true"/>
+      <property name="EDID" type="string" value="a65328b7afc785c761c56a74a1590a69e84434cb"/>
+      <property name="Resolution" type="string" value="1920x1080"/>
+      <property name="RefreshRate" type="double" value="144.00343526875926"/>
+      <property name="Rotation" type="int" value="0"/>
+      <property name="Reflection" type="string" value="0"/>
+      <property name="Primary" type="bool" value="true"/>
+      <property name="Scale" type="empty">
+        <property name="X" type="double" value="1"/>
+        <property name="Y" type="double" value="1"/>
+      </property>
+      <property name="Position" type="empty">
+        <property name="X" type="int" value="2560"/>
+        <property name="Y" type="int" value="0"/>
+      </property>
+    </property>
+    <property name="DP-1" type="string" value="LG Electronics 24&quot;">
+      <property name="Active" type="bool" value="true"/>
+      <property name="EDID" type="string" value="4996bd4c35adf38c9ec0131434e89b5abe570595"/>
+      <property name="Resolution" type="string" value="2560x1440"/>
+      <property name="RefreshRate" type="double" value="59.950550105254798"/>
+      <property name="Rotation" type="int" value="0"/>
+      <property name="Reflection" type="string" value="0"/>
+      <property name="Primary" type="bool" value="false"/>
+      <property name="Scale" type="empty">
+        <property name="X" type="double" value="1"/>
+        <property name="Y" type="double" value="1"/>
+      </property>
+      <property name="Position" type="empty">
+        <property name="X" type="int" value="0"/>
+        <property name="Y" type="int" value="0"/>
+      </property>
+    </property>
+  </property>
 </channel>

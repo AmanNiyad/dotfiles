@@ -1,19 +1,15 @@
 [xfdesktop-version-4.10.3+-rcfile_format]
 4.10.3+=true
 
-[A7E1-0AA8]
-row=3
-col=0
-
 [Trash]
-row=0
-col=0
+row=1
+col=1
 
 [/]
-row=1
-col=0
+row=2
+col=1
 
 [/home/aman]
-row=2
+row=1
 col=0
 

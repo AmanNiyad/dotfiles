@@ -6,5 +6,7 @@
     <property name="brightness-switch-restore-on-exit" type="int" value="1"/>
     <property name="show-tray-icon" type="bool" value="false"/>
     <property name="inactivity-on-battery" type="uint" value="14"/>
+    <property name="show-presentation-indicator" type="bool" value="false"/>
+    <property name="presentation-mode" type="bool" value="false"/>
   </property>
 </channel>

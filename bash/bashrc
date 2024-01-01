@@ -1,0 +1,17 @@
+#
+# ~/.bashrc
+#
+
+# If not running interactively, don't do anything
+[[ $- != *i* ]] && return
+
+alias ls='ls --color=auto'
+alias grep='grep --color=auto'
+alias clr='clear'
+alias vim='nvim'
+PS1='[\u@\h \W]\$ '
+
+[ -f "/home/aman/.ghcup/env" ] && source "/home/aman/.ghcup/env" # ghcup-env
+
+# Created by `pipx` on 2023-08-06 06:40:44
+export PATH="$PATH:/home/aman/.local/bin"

@@ -1,11 +1,11 @@
---Rename to .xmobarrc
 Config { 
+
    -- appearance
-     font =         "Iosevka NerdFont Regular 11"
-     textOffset=    1
+     font =         "Iosevka NerdFont Regular 12"
+   , textOffset=    1
    , bgColor =      "#523637"
    , fgColor =      "#ffffff"
-   , position =     Top 
+   , position =     TopSize C 100 24
    , border =       NoBorder
    , borderColor =  "#646464"
    , alpha = 100 
@@ -13,7 +13,7 @@ Config {
    -- layout
    , sepChar =  "%"   -- delineator between plugin names and straight text
    , alignSep = "}{"  -- separator between left-right alignment
-   , template = "%StdinReader%}%date%{  %battery% "
+   , template = "%StdinReader%}%date%{ <fc=#ffaaff>Vol:</fc> <fc=#503b3a>%vol%</fc> |  %battery% "
 
    -- general behavior
    , lowerOnStart =     True    -- send to bottom of window stack on start
@@ -42,6 +42,7 @@ Config {
                                        , "-i"	, "<fc=#006000>Charged</fc>"
                              ] 50
 
-        , Run Date           "<fc=#ABABAB>%-d-%-m-%-Y     %T</fc>" "date" 12
+        , Run Date           "<fc=#ABABAB>%-d-%-m-%-Y     %T</fc>" "date" 13
+        , Run Com "python" ["/home/aman/.config/xmonad/xmobar/show-volume.py"] "vol" 1
         ]
    }

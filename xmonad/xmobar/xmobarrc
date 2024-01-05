@@ -2,6 +2,9 @@ Config {
 
    -- appearance
      font =         "Iosevka NerdFont Regular 12"
+   , additionalFonts = [ "Iosevka NerdFont Regular 22"
+                       , "Iosevka NerdFont Regular 18"
+                       , "Iosevka NerdFont Regular 14"]
    , textOffset=    1
    , bgColor =      "#523637"
    , fgColor =      "#ffffff"
@@ -13,7 +16,7 @@ Config {
    -- layout
    , sepChar =  "%"   -- delineator between plugin names and straight text
    , alignSep = "}{"  -- separator between left-right alignment
-   , template = "%StdinReader%}%date%{ <fc=#ffaaff>Vol:</fc> <fc=#503b3a>%vol%</fc> |  %battery% "
+   , template = "<fc=#4e4068><fn=1>  </fn></fc>| %StdinReader%}%date%{| <fn=2><fc=#cccccc>  </fc></fn><fc=#503b3a>%vol%</fc> |<fn=3> %mute% </fn>|  %battery% "
 
    -- general behavior
    , lowerOnStart =     True    -- send to bottom of window stack on start
@@ -26,7 +29,7 @@ Config {
    , commands = 
 
         [ Run StdinReader 
-        , Run Battery        [ "--template" , "<fc=#ffaaff>Battery:</fc> <acstatus>"
+        , Run Battery        [ "--template" , "<fc=#cccccc><fn=2>  </fn></fc> <acstatus>"
                              , "--Low"      , "10"        -- units: %
                              , "--High"     , "80"        -- units: %
                              , "--low"      , "darkred"
@@ -37,12 +40,14 @@ Config {
                                        -- discharging status
                                        , "-o"	, "<left>% (<timeleft>)"
                                        -- AC "on" status
-                                       , "-O"	, "<fc=#dAA520>Charging|</fc><left>%<fc=#dAA520>|</fc>"
+                                       , "-O"	, "<fc=#dAA520>Charging: </fc><left>%"
                                        -- charged status
                                        , "-i"	, "<fc=#006000>Charged</fc>"
                              ] 50
 
-        , Run Date           "<fc=#ABABAB>%-d-%-m-%-Y     %T</fc>" "date" 13
-        , Run Com "python" ["/home/aman/.config/xmonad/xmobar/show-volume.py"] "vol" 1
+        , Run Date           "<fc=#cccccc>%-d-%-m-%-Y     %T</fc>" "date" 13
+        , Run Com "/home/aman/.config/xmonad/xmobar/show-volume.sh" [] "vol" 1
+        , Run Com "/home/aman/.config/xmonad/xmobar/show-mute.sh" [] "mute" 1
+       
         ]
    }

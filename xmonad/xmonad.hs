@@ -115,14 +115,14 @@ mySolarized :: ColorSchemes
 mySolarized = ColorSchemes {
                             black   = "#002b36",
                             white   = "#eee8d5",
-                            gray    = "#073642",
+                            gray    = "#b8b8b8",
                             yellow  = "#b58900",
                             orange  = "#cb4b16",
                             red     = "#d30102",
                             purple  = "#d33682",
                             blue    = "#268bd2",
                             cyan    = "#2aa198",
-                            green   = "#859900"
+                            green   = "#00A86B"
                            }
 --
 ---------------------------------------------KEYBINDS-----------------------------------------------
@@ -144,6 +144,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((0,                  xK_Print ), spawn "xfce4-screenshooter")
     , ((0          ,0x1008ff11), spawn "pactl set-sink-volume 0 -2%")
     , ((0          ,0x1008ff13), spawn "pactl set-sink-volume 0 +2%")
+    , ((0          ,0x1008ffb2), spawn "pactl set-source-mute 1 toggle")
     , ((0, xF86XK_MonBrightnessUp), spawn "lux -a 10%")
     , ((0, xF86XK_MonBrightnessDown), spawn "lux -s 10%")
     , ((modm,               xK_Return), windows W.swapMaster)
@@ -228,16 +229,16 @@ windowCount = gets $ Just . show . length . W.integrate' . W.stack . W.workspace
 
 myXmobarPP h =
   xmobarPP
-    { ppCurrent         = xmobarColor (green myColor) "" . wrap "[" "]",
-      ppVisible         = xmobarColor (white myColor) "" . wrap "" "" ,
-      ppHidden          = xmobarColor (yellow myColor) "" . wrap "" "" ,
-      ppHiddenNoWindows = xmobarColor (white myColor) ""  ,
-      ppSep             = " | ",
-      ppTitle           = xmobarColor (white myColor) "" . shorten 60,
-      ppLayout          = xmobarColor  (white myColor) "",
-      -- ppOutput          = \x -> hPutStrLn xmproc0 x >> hPutStrLn xmproc1 x,
-      --ppExtras          = [windowCount],
-      ppOrder           = \(ws : l : t : ex) -> [ws, l, t]
+    {  ppCurrent         = xmobarColor (green myColor) "" . wrap "" "".xmobarBorder "Bottom" "#01796f" 2
+    ,  ppVisible         = xmobarColor (white myColor) "" . wrap "" "" 
+    ,  ppHidden          = xmobarColor (yellow myColor) "" . wrap "" "" 
+    ,  ppHiddenNoWindows = shorten' ""  0
+    ,  ppSep             = " | "
+    ,  ppTitle           = xmobarColor (white myColor) "" . shorten 60
+    ,  ppLayout          = xmobarColor  (white myColor) ""
+--  ,  ppOutput          = \x -> hPutStrLn xmproc0 x >> hPutStrLn xmproc1 x
+--  ,  ppExtras          = [windowCount]
+    ,  ppOrder           = \(ws : l : t : ex) -> [ws, l, t]
     }
 
 grey1, grey2, grey3, grey4 :: String
@@ -269,16 +270,17 @@ main = do
         startupHook        = myStartupHook
         , rootMask = rootMask def .|. pointerMotionMask
         ,logHook = dynamicLogWithPP $ xmobarPP
-            { ppCurrent         = xmobarColor (green myColor) "" . wrap "[" "]",
-                                                    ppVisible         = xmobarColor (white myColor) "" . wrap "" "",
-                                                    ppHidden          = xmobarColor (yellow myColor) "" . wrap "" "",
-                                                    ppHiddenNoWindows = xmobarColor (white myColor) "",
-                                                    ppSep             = " | ",
-                                                    ppTitle           = xmobarColor (white myColor) "" . shorten 60,
-                                                    ppLayout          = xmobarColor  (white myColor) "",
-                                                    ppOutput          = \x -> hPutStrLn xmproc x,
-                                                    --ppExtras          = [windowCount],
-                                                    ppOrder           = \(ws : l : t : ex) -> [ws, t]
+                                                {   ppCurrent         = xmobarColor (green myColor) "" . wrap "" "".xmobarBorder "Bottom" "#00A86B" 3
+                                                ,    ppTitleSanitize   = xmobarStrip
+                                            --  ,    ppVisible         = xmobarColor (white myColor) "" . wrap "" ""
+                                                ,    ppHidden          = xmobarColor (yellow myColor) "" . wrap "" ""
+                                                ,    ppHiddenNoWindows = shorten' "" 0
+                                                ,    ppSep             = " " 
+                                                ,    ppTitle           = xmobarColor (gray myColor) "" . shorten 50 . wrap "[" "]"
+                                                ,    ppLayout          = xmobarColor  (white myColor) ""
+                                                ,    ppOutput          = \x -> hPutStrLn xmproc x
+                                             -- ,    --ppExtras          = [windowCount]
+                                                ,    ppOrder           = \(ws : l : t : ex) -> [ws, t]
                                             }
         }
 

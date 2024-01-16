@@ -6,7 +6,7 @@ declare -i const=6529
 declare -i BARS=$(( VOL / const))
 
 case $BARS in
-    0)  echo "<fc=#dddddd>[mute]</fc>";;
+    0)  echo "<fc=#cccccc>[mute]</fc>";;
     1)  echo "<fc=#00aa3c>󰝤              </fc>";;
     2)  echo "<fc=#00993c>󰝤󰝤             </fc>";;
     3)  echo "<fc=#10893c>󰝤󰝤󰝤            </fc>";;

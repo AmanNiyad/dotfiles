@@ -259,7 +259,6 @@ main = do
         workspaces         = myWorkspaces,
         normalBorderColor  = myNormalBorderColor,
         focusedBorderColor = myFocusedBorderColor,
-
         keys               = myKeys,
         mouseBindings      = myMouseBindings,
 

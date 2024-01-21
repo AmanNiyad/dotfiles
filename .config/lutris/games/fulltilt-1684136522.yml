@@ -1,5 +1,0 @@
-game:
-  arch: win32
-  exe: /home/aman/Downloads/FULLTILT/FULLTILT.EXE
-system: {}
-wine: {}

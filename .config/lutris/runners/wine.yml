@@ -1,4 +1,0 @@
-system: {}
-wine:
-  system_winetricks: true
-  version: lutris-GE-Proton8-5-x86_64

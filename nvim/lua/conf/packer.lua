@@ -42,5 +42,11 @@ use {
 }
 
 use('ThePrimeagen/vim-be-good')
+use("lukas-reineke/indent-blankline.nvim")
+
+use {"akinsho/toggleterm.nvim", tag = '*', config = function()
+  require("toggleterm").setup()
+end}
+
 end)
 

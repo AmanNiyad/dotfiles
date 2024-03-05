@@ -132,7 +132,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     ((modm .|. shiftMask, xK_Return), spawn $ XMonad.terminal conf)
     , ((modm,               xK_p     ), spawn "dmenu_run")
     , ((modm,               xK_b     ), spawn "firefox")
-    , ((modm .|. shiftMask, xK_p     ), spawn "gmrun")
+    , ((modm,               xK_f     ), spawn "thunar")
     , ((modm .|. shiftMask, xK_c     ), kill)
     , ((modm,               xK_space ), sendMessage NextLayout)
     , ((modm .|. shiftMask, xK_space ), setLayout $ XMonad.layoutHook conf)
@@ -141,7 +141,8 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm,               xK_j     ), windows W.focusDown)
     , ((modm,               xK_k     ), windows W.focusUp  )
     , ((modm,               xK_m     ), windows W.focusMaster  )
-    , ((0,                  xK_Print ), spawn "xfce4-screenshooter")
+    , ((0,                  xK_Print ), spawn "scrot ~/Pictures/Screenshots/%b_%d_%H:%M:%S.png")
+    , ((0    .|. shiftMask, xK_Print ), spawn "scrot -s ~/Pictures/Screenshots/%b_%d_%H:%M:%S.png")
     , ((0          ,0x1008ff11), spawn "pactl set-sink-volume 0 -2%")
     , ((0          ,0x1008ff13), spawn "pactl set-sink-volume 0 +2%")
     , ((0          ,0x1008ffb2), spawn "pactl set-source-mute 1 toggle")
@@ -178,18 +179,16 @@ myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList $
 --
 ---------------------------------------------LAYOUTS-----------------------------------------
 --
-myLayout = layoutTall ||| layoutSpiral ||| noBorders Full
+myLayout = layoutTall ||| noBorders Full
   where
     layoutTall = spacingWithEdge 2 $ avoidStruts(Tall 1 (3/100) (1/2))
-    layoutSpiral = spacingWithEdge 2 $ avoidStruts(spiral(6/7))
 --
 ---------------------------------------------WINDOW_RULES-----------------------------------------
 --
 myManageHook = composeAll
     [ className =? "Darktable"        --> doFloat
     , className =? "Gimp"           --> doFloat
-    , resource  =? "desktop_window" --> doIgnore
-    , resource  =? "kdesktop"       --> doIgnore ]
+    , resource  =? "desktop_window" --> doIgnore]
 --
 ---------------------------------------------EVENT_HANDLING-----------------------------------------
 --
@@ -221,6 +220,7 @@ myStartupHook = do
     spawnOnce "~/.fehbg &"
     spawnOnce "picom &"
     spawnOnce "gummy start"
+    spawnOnce "xrandr -r 60"
 --
 --------------------------------------------DYNAMIC_LOG_HOOK---------------------------------------
 --
@@ -352,4 +352,5 @@ help = unlines ["The default modifier key is 'alt'. Default keybindings:",
     "-- Mouse bindings: default actions bound to mouse events",
     "mod-button1  Set the window to floating mode and move by dragging",
     "mod-button2  Raise the window to the top of the stack",
-    "mod-button3  Set the window to floating mode and resize by dragging"]
+    "mod-button3  Set the window to floating mode and resize by dragging",
+    "pactl set-source-volume 1 <volume> for microphone volume setting."]

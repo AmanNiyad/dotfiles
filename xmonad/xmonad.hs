@@ -132,6 +132,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     ((modm .|. shiftMask, xK_Return), spawn $ XMonad.terminal conf)
     , ((modm,               xK_p     ), spawn "dmenu_run")
     , ((modm,               xK_b     ), spawn "firefox")
+    , ((modm .|. shiftMask, xK_b     ), spawn "torbrowser-launcher")
     , ((modm,               xK_f     ), spawn "thunar")
     , ((modm .|. shiftMask, xK_c     ), kill)
     , ((modm,               xK_space ), sendMessage NextLayout)

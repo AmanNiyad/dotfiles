@@ -146,9 +146,9 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((0    .|. shiftMask, xK_Print ), spawn "scrot -s ~/Pictures/Screenshots/%b_%d_%H:%M:%S.png")
     , ((0          ,0x1008ff11), spawn "pactl set-sink-volume 0 -2%")
     , ((0          ,0x1008ff13), spawn "pactl set-sink-volume 0 +2%")
-    , ((0          ,0x1008ffb2), spawn "pactl set-source-mute 1 toggle")
-    , ((0, xF86XK_MonBrightnessUp), spawn "lux -a 10%")
-    , ((0, xF86XK_MonBrightnessDown), spawn "lux -s 10%")
+    , ((0          ,0x1008ffb2), spawn "pactl set-source-mute 0 toggle")
+    , ((0, xF86XK_MonBrightnessUp), spawn "lux -a 5%")
+    , ((0, xF86XK_MonBrightnessDown), spawn "lux -s 5%")
     , ((modm,               xK_Return), windows W.swapMaster)
     , ((modm .|. shiftMask, xK_j     ), windows W.swapDown  )
     , ((modm .|. shiftMask, xK_k     ), windows W.swapUp    )
@@ -220,7 +220,6 @@ myLogHook = return ()
 myStartupHook = do
     spawnOnce "~/.fehbg &"
     spawnOnce "picom &"
-    spawnOnce "gummy start"
     spawnOnce "xrandr -r 60"
 --
 --------------------------------------------DYNAMIC_LOG_HOOK---------------------------------------

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-MUTE=$(pactl get-source-mute 1 | awk '{print $2}')
+MUTE=$(pactl get-source-mute 0 | awk '{print $2}')
 
 if [ $MUTE == 'yes' ]
 then

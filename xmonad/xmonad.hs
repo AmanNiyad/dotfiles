@@ -71,8 +71,8 @@ myFocusFollowsMouse = True
 myClickJustFocuses :: Bool
 myClickJustFocuses = False
 
-myNormalBorderColor  = "#dddddd" 
-myFocusedBorderColor = "#9531e0"
+myNormalBorderColor  = "#000000" 
+myFocusedBorderColor = "#1b7585"
 
 actionPrefix, actionButton, actionSuffix :: [Char]
 actionPrefix = "<action=`xdotool key super+"

@@ -46,8 +46,8 @@ Config {
                              ] 50
 
         , Run Date           "<fc=#cccccc>%-d-%-m-%-Y     %T</fc>" "date" 13
-        , Run Com "/home/aman/.config/xmonad/xmobar/show-volume.sh" [] "vol" 1
-        , Run Com "/home/aman/.config/xmonad/xmobar/show-mute.sh" [] "mute" 1
+        , Run Com "/home/Aman/.config/xmonad/xmobar/show-volume.sh" [] "vol" 1
+        , Run Com "/home/Aman/.config/xmonad/xmobar/show-mute.sh" [] "mute" 1
        
         ]
    }

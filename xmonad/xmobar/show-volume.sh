@@ -1,6 +1,7 @@
 #!/bin/bash
 
-VOL=$(pactl get-sink-volume 0 | awk '{print $3}')
+DEFAULT_SINK=$(pactl info | grep "Default Sink" | awk '{print $3}')
+VOL=$(pactl get-sink-volume "$DEFAULT_SINK" | awk '{print $3}')
 declare -i const=6529
 
 declare -i BARS=$(( VOL / const))

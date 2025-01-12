@@ -132,7 +132,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     ((modm .|. shiftMask, xK_Return), spawn $ XMonad.terminal conf)
     , ((modm,               xK_p     ), spawn "dmenu_run")
     , ((modm,               xK_b     ), spawn "firefox")
-    , ((modm .|. shiftMask, xK_b     ), spawn "torbrowser-launcher")
+    , ((modm .|. shiftMask, xK_b     ), spawn "thunderbird")
     , ((modm,               xK_f     ), spawn "thunar")
     , ((modm .|. shiftMask, xK_c     ), kill)
     , ((modm,               xK_space ), sendMessage NextLayout)
@@ -144,11 +144,18 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm,               xK_m     ), windows W.focusMaster  )
     , ((0,                  xK_Print ), spawn "scrot ~/Pictures/Screenshots/%b_%d_%H:%M:%S.png")
     , ((0    .|. shiftMask, xK_Print ), spawn "scrot -s ~/Pictures/Screenshots/%b_%d_%H:%M:%S.png")
-    , ((0          ,0x1008ff11), spawn "pactl set-sink-volume 0 -2%")
-    , ((0          ,0x1008ff13), spawn "pactl set-sink-volume 0 +2%")
-    , ((0          ,0x1008ffb2), spawn "pactl set-source-mute 0 toggle")
-    , ((0, xF86XK_MonBrightnessUp), spawn "lux -a 5%")
-    , ((0, xF86XK_MonBrightnessDown), spawn "lux -s 5%")
+--    , ((0          ,0x1008ff11), spawn "pactl set-sink-volume 0 -2%")
+--    , ((0          ,0x1008ff13), spawn "pactl set-sink-volume 0 +2%")
+--    , ((0          ,0x1008ffb2), spawn "pactl set-source-mute 0 toggle")
+--    , ((0          ,0x1008ff11), spawn "pactl set-sink-volume 2 -2%")
+--    , ((0          ,0x1008ff13), spawn "pactl set-sink-volume 2 +2%")
+--    , ((0          ,0x1008ffb2), spawn "pactl set-source-mute 2 toggle")
+    , ((0, 0x1008ff11), spawn "/home/Aman/.config/xmonad/set-sink-volume.sh down")
+    , ((0, 0x1008ff13), spawn "/home/Aman/.config/xmonad/set-sink-volume.sh up")
+    , ((0, 0x1008ffb2), spawn "/home/Aman/.config/xmonad/set-sink-volume.sh toggle-mute")
+
+    , ((0, xF86XK_MonBrightnessUp), spawn "light -A 5")
+    , ((0, xF86XK_MonBrightnessDown), spawn "light -U 5")
     , ((modm,               xK_Return), windows W.swapMaster)
     , ((modm .|. shiftMask, xK_j     ), windows W.swapDown  )
     , ((modm .|. shiftMask, xK_k     ), windows W.swapUp    )
@@ -250,7 +257,7 @@ grey4  = "#8691A8"
 ----------------------------------------------------MASTER------------------------------------------
 --
 main = do
-    xmproc <- spawnPipe "xmobar /home/aman/.config/xmonad/xmobar/.xmobarrc" 
+    xmproc <- spawnPipe "xmobar /home/Aman/.config/xmonad/xmobar/.xmobarrc" 
     xmonad $ docks $ def{
         terminal           = myTerminal,
         focusFollowsMouse  = myFocusFollowsMouse,

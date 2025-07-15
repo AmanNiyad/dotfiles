@@ -1,1 +1,16 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9,3V5H7A2,2 0 0,0 5,7V9H3V11H5V13H3V15H5V17A2,2 0 0,0 7,19H9V21H11V19H13V21H15V19H17A2,2 0 0,0 19,17V15H21V13H19V11H21V9H19V7A2,2 0 0,0 17,5H15V3H13V5H11V3M8,9H11.5V10.5H8.5V11.25H10.5A1,1 0 0,1 11.5,12.25V14A1,1 0 0,1 10.5,15H8A1,1 0 0,1 7,14V10A1,1 0 0,1 8,9M12.5,9H14V11H15.5V9H17V15H15.5V12.5H12.5M8.5,12.75V13.5H10V12.75" /></svg>
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
+<svg fill="#000000" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
+	 viewBox="0 0 455 455" xml:space="preserve">
+<g>
+	<rect x="183.936" y="183.935" width="87.129" height="87.13"/>
+	<path d="M327.801,0h-30v92.546H242.5V0h-30v92.546h-55.301V0h-30v92.546H92.546v269.907h34.653V455h30v-92.546H212.5V455h30
+		v-92.546h55.301V455h30v-92.546h34.653V92.546h-34.653V0z M153.936,301.065v-147.13h147.129v147.13H153.936z"/>
+	<rect x="362.454" y="126.944" width="92.546" height="30"/>
+	<rect x="362.454" y="212.246" width="92.546" height="30"/>
+	<rect x="362.454" y="297.546" width="92.546" height="30"/>
+	<rect y="126.944" width="92.546" height="30"/>
+	<rect y="212.246" width="92.546" height="30"/>
+	<rect y="297.546" width="92.546" height="30"/>
+</g>
+</svg>

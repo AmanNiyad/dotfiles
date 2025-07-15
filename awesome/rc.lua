@@ -1,58 +1,47 @@
 pcall(require, "luarocks.loader")
 
+-- local edid = require("my_modules/edid")
+-- local naughty = require("naughty")
 local gears = require("gears")
 local awful = require("awful")
-require("awful.autofocus")
 local wibox = require("wibox")
-local menubar = require("menubar")
 local beautiful = require("beautiful")
-local my_theme = require("my_modules/my_theme")
-local naughty = require("naughty")
 local my_utils = require("my_modules/my_utils")
 local lain = require("lain")
 local capslock = require("my_modules/capslock")
-local spotify = require("my_modules/spotify")
 local nextthing = require("my_modules/nextthing")
-local psi_widget = require("my_modules/psi")
-local metrics_widget = require("my_modules/metrics")
-local rotate_widget = require("my_modules/rotatescreen")
 local cpu_widget = require("my_modules/cpu_widget")
 local mem_widget = require("my_modules/mem_widget")
-local temp_widget = require("my_modules/temp_widget")
 local net_widget = require("my_modules/network_widget")
 local sound_widget = require("my_modules/sound-widget")
--- local touch_widget = require("my_modules/touchscreen")
-local keyboard_widget = require("my_modules/keyboard")
+local mic_widget = require("my_modules/mic-widget")
 local helpers = require("my_modules/geo_helpers")
-local edid = require("my_modules/edid")
+local naughty = require("naughty")
 local dpi = require("beautiful").xresources.apply_dpi
-hostname = io.popen("uname -n"):read()
+local hotkeys_popup = require("awful.hotkeys_popup")
 
 -- debug stuff if needed
 local printmore = false
 
--- my theme
+require("awful.hotkeys_popup.keys")
+require("awful.autofocus")
+
+hostname = io.popen("uname -n"):read()
+
+-- Theme initialize
 beautiful.init("/home/aman/.config/awesome/my_modules/my_theme.lua")
 
--- print errors as naughty notifications
+-- Error handling
 dofile("/home/aman/.config/awesome/my_modules/rc_errorhandling.lua")
 
--- some fancy functions I'm using
+-- Functions definition
 dofile("/home/aman/.config/awesome/my_modules/rc_functions.lua")
 
--- define tags at the beginning
+-- Tags definition
 dofile("/home/aman/.config/awesome/my_modules/rc_tags.lua")
 
--- stuff related to volume/brightness OSD notifications
-dofile("/home/aman/.config/awesome/my_modules/rc_fn_actions.lua")
-
-local naughty = require("naughty")
-
--- stuff including usernames etc
--- dofile ("/home/aman/.config/awesome/my_modules/rc_secret.lua")
-
--- @Reference: disable notification system
--- package.loaded["naughty.dbus"] = {}
+-- Volume/Brightness OSD notifications
+dofile("/home/aman/.config/awesome/my_modules/rc_fn_actions.lua") -- Needs work!!!
 
 clientkeys = gears.table.join(
 	-- Increase/decrease windows sizes on tiled layout: Win + asdf
@@ -320,67 +309,98 @@ separator_reverse = wibox.widget({
 		gears.shape.powerline(cr, width, height, (height / 2) * -1)
 	end,
 })
+local wibox = require("wibox")
+local gears = require("gears")
+local dpi = require("beautiful").xresources.apply_dpi
+local lain = require("lain")
+local beautiful = require("beautiful")
+local my_utils = require("my_modules/my_utils")
+local awful = require("awful")
 
-adapter_name = "BAT0"
+-- Detect battery adapter
+local adapter_name = "BAT0"
 if my_utils.file_exists("/sys/class/power_supply/BAT1/status") then
 	adapter_name = "BAT1"
 end
-battery_image_widget = wibox.widget({
+
+-- Icon widget with forced size
+local battery_image_widget = wibox.widget({
 	image = beautiful.battery_icon_empty,
 	resize = true,
+	forced_height = dpi(18),
+	forced_width = dpi(18),
 	widget = wibox.widget.imagebox,
 })
 
-bat_tooltip = get_tooltip(battery_image_widget)
+-- Tooltip on hover
+local bat_tooltip = get_tooltip(battery_image_widget)
 
-local battery_widget_text = lain.widget.bat({
+-- Text widget
+local battery_text_widget = wibox.widget({
+	widget = wibox.widget.textbox,
+	align = "center",
+	valign = "center",
+	font = beautiful.font,
+})
+
+-- Margin between icon and text
+local battery_text_margin = wibox.container.margin(battery_text_widget, dpi(5), 0, 0, 0)
+
+-- Horizontal layout
+local battery_inner_widget = wibox.widget({
+	battery_image_widget,
+	battery_text_margin,
+	layout = wibox.layout.fixed.horizontal,
+})
+
+-- Outer margin
+local battery_widget = wibox.container.margin(battery_inner_widget, dpi(2), dpi(4), dpi(2), dpi(2))
+
+-- Lain battery logic
+lain.widget.bat({
 	battery = adapter_name,
 	full_notify = "off",
 	settings = function()
+		local perc = ""
+		local battery_widget_color = beautiful.fg_normal
+		local battery_image = beautiful.battery_icon_full
+
 		if bat_now.status == "Charging" then
-			battery_widget_color = beautiful.fg_normal_alt
+			battery_widget_color = beautiful.fg_normal_alt or "#8ec07c"
 			battery_image = beautiful.battery_icon_charging
 		elseif bat_now.status == "Full" then
-			perc = ""
-			battery_widget_color = beautiful.fg_normal
 			battery_image = beautiful.battery_icon_full
+			perc = ""
 		else
-			battery_widget_color = beautiful.fg_normal_alt
-			if bat_now.perc > 80 then
-				battery_image = beautiful.battery_icon_full
-			elseif bat_now.perc > 40 then
-				battery_image = beautiful.battery_icon_medium
-			elseif bat_now.perc > 20 then
-				battery_image = beautiful.battery_icon_low
-			else
-				battery_image = beautiful.battery_icon_empty
+			battery_widget_color = beautiful.fg_normal_alt or "#a89984"
+			if tonumber(bat_now.perc) then
+				if bat_now.perc > 80 then
+					battery_image = beautiful.battery_icon_full
+				elseif bat_now.perc > 40 then
+					battery_image = beautiful.battery_icon_medium
+				elseif bat_now.perc > 20 then
+					battery_image = beautiful.battery_icon_low
+				else
+					battery_image = beautiful.battery_icon_empty
+					battery_widget_color = "#fb4934" -- alert red
+				end
 			end
 		end
 
-		if bat_now.perc > 90 then
-			perc = ""
-		elseif bat_now.perc == "N/A" then
-			perc = ""
-		else
+		if bat_now.perc ~= "N/A" and tonumber(bat_now.perc) and bat_now.perc <= 90 then
 			perc = bat_now.perc .. "%"
 		end
 
-		bat_tooltip.text = bat_now.status .. " (" .. bat_now.perc .. "%)"
-		widget:set_markup(lain.util.markup.fontfg(beautiful.font, beautiful.fg_normal, perc))
+		battery_text_widget:set_markup(lain.util.markup.fontfg(beautiful.font, battery_widget_color, perc))
 		battery_image_widget:set_image(gears.color.recolor_image(battery_image, battery_widget_color))
+		bat_tooltip.text = bat_now.status .. " (" .. perc .. ")"
 	end,
 })
-battery_widget = wibox.widget({
-	battery_image_widget,
-	battery_widget_text,
-	layout = wibox.layout.fixed.horizontal,
-})
-battery_widget:buttons(awful.util.table.join(
-	-- Update battery widget with click, if we're not patient enough
-	awful.button({}, 1, function()
-		battery_widget_text:update()
-	end)
-))
+
+-- Click to manually update
+battery_widget:buttons(awful.util.table.join(awful.button({}, 1, function()
+	battery_text_widget:update()
+end)))
 
 -- @Reference
 -- When a new sound device is added/removed,
@@ -461,15 +481,6 @@ psi_timer = gears.timer({
 	autostart = true,
 	callback = function()
 		psi_widget:check()
-	end,
-})
-
-spotify_timer = gears.timer({
-	timeout = 15,
-	autostart = true,
-	call_now = true,
-	callback = function()
-		spotify:check()
 	end,
 })
 
@@ -626,6 +637,8 @@ local function screen_organizer(s, primary, is_extra)
 		table.insert(systray_right_widgets, net_widget)
 		table.insert(systray_right_widgets, separator_reverse)
 		table.insert(systray_right_widgets, sound_widget)
+		table.insert(systray_right_widgets, separator_reverse)
+		table.insert(systray_right_widgets, mic_widget)
 		table.insert(systray_right_widgets, my_systray)
 	end
 	table.insert(systray_right_widgets, capslock)
@@ -757,6 +770,9 @@ root.buttons(gears.table.join(awful.button({}, 4, awful.tag.viewprev), awful.but
 
 -- {{{ Key bindings
 globalkeys = gears.table.join(
+	awful.key({ win, "Shift" }, "h", function()
+		hotkeys_popup.show_help(nil, awful.screen.focused())
+	end, { description = "show help", group = "awesome" }),
 	-- Brightness
 	awful.key({}, "XF86MonBrightnessUp", function()
 		awful.spawn.with_shell("bash /home/aman/.config/awesome/brightness_control.sh up")
@@ -768,16 +784,16 @@ globalkeys = gears.table.join(
 	-- ALSA volume control
 	awful.key({}, "0x1008ff13", function()
 		awful.spawn("amixer sset Master 5%+", false)
-		awesome.emit_signal("volume_change")
+		awesome.emit_signal("volume::change")
 	end, { description = "volume up", group = "hotkeys" }),
 
 	awful.key({}, "0x1008ff11", function()
 		awful.spawn("amixer sset Master 5%-", false)
-		awesome.emit_signal("volume_change")
+		awesome.emit_signal("volume::change")
 	end, { description = "volume down", group = "hotkeys" }),
 
 	awful.key({}, "0x1008ffb2", function()
-		awful.spawn("amixer sset Master toggle", false)
+		awful.spawn("amixer sset Capture toggle", false)
 		awesome.emit_signal("mic")
 	end, { description = "toggle mute", group = "hotkeys" }),
 
@@ -822,14 +838,6 @@ globalkeys = gears.table.join(
 	-- Smart plug toggle
 	-- awful.key({              }, "XF86HomePage",          nil, function() awful.spawn(bulb_toggle) end),
 	-- For laptop, which doesn't have next/prev buttons
-	-- awful.key({ ctrl }, "XF86AudioRaiseVolume", nil, function()
-	-- 	fn_process_action("media", "next")
-	-- 	spotify:check()
-	-- end),
-	-- awful.key({ ctrl }, "XF86AudioLowerVolume", nil, function()
-	-- 	fn_process_action("media", "previous")
-	-- 	spotify:check()
-	-- end),
 	awful.key({ win }, "F9", nil, function()
 		awful.spawn("rofi-pulse-select sink")
 	end),
@@ -843,7 +851,7 @@ globalkeys = gears.table.join(
 	awful.key({ "Shift" }, "Print", function()
 		awful.spawn("flameshot full -c")
 	end),
-	awful.key({ ctrl }, "space", function()
+	awful.key({ win }, "p", function()
 		awful.spawn(rofi_cmd)
 	end),
 	awful.key({}, "F9", nil, function()
@@ -857,9 +865,6 @@ globalkeys = gears.table.join(
 	end),
 	awful.key({ ctrl, alt }, "c", function()
 		awful.spawn(greenclip_cmd)
-	end),
-	awful.key({ win }, "p", function()
-		awful.spawn("rofi-pass")
 	end),
 	awful.key({ win, "Shift" }, "Return", function()
 		awful.spawn(terminal)
@@ -1031,6 +1036,12 @@ client.connect_signal("mouse::enter", function(c)
 		else
 			c:relative_move((c.screen.geometry.width - c.width), 0, 0, 0)
 		end
+	end
+end)
+
+client.connect_signal("mouse::enter", function(c)
+	if awful.layout.get(c.screen) ~= awful.layout.suit.magnifier and awful.client.focus.filter(c) then
+		client.focus = c
 	end
 end)
 
@@ -1223,6 +1234,10 @@ awesome.connect_signal("startup", function(s, state)
 		"0x1008ff49"
 	)
 end)
+
+for s in screen do
+	set_wallpaper(s)
+end
 
 debug_print("Last state of the screens table is: \n" .. my_utils.dump(screens_table), printmore)
 load_last_active_tags(screens_table, printmore)

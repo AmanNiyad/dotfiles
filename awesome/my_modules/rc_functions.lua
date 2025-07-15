@@ -435,13 +435,23 @@ function resize_screen(s, screens_table, shrink)
   end
 end
 
-local function set_wallpaper(s)
-  gears.wallpaper.maximized(gears.filesystem.get_random_file_from_dir(
-    "/home/aman/Pictures/wallpapers",
-    {".jpg", ".png", ".svg"},
-    true
-  ), s, false)
+function set_wallpaper(scr)
+  gears.wallpaper.maximized("/home/aman/Pictures/wallpapers/wallpaper.png", scr, false)
 end
+
+-- function set_wallpaper(scr)
+--   local wp = gears.filesystem.get_random_file_from_dir(
+--     "/home/aman/Pictures/wallpapers",
+--     { ".jpg", ".png", ".svg" },
+--     true
+--   )
+--   if wp then
+--     gears.wallpaper.maximized(wp, scr, false)
+--   else
+--     naughty.notify({ title = "Wallpaper Error", text = "No image found in wallpapers folder." })
+--   end
+-- end
+
 
 local function is_fresh(filepath, max_age_seconds)
     local f = io.popen("stat -c %Y " .. filepath)
